@@ -1,5 +1,6 @@
 #!/bin/bash
-
+# chkconfig: 345 99 01
+# description: SPFBL
 ##########################################
 #       Gerenciador de start / stop      #                  
 #               SPFBL                    #
