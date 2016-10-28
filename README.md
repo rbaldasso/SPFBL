@@ -102,6 +102,18 @@ O SPFBL mantém em cache todos os registros SPF encontrados e procura mantê-los
 
 Quando o resultado da consulta SPFBL retorna um ticket, dentro dele segue informações sobre o responsável pelo envio e a data que a consulta foi realizada. Este ticket pode ser utilizado para formalizar uma denúncia, que contabiliza para o responsável o peso de denúncia. Cada denúncia expira em sete dias após a data da consulta e não pode ser feita após cinco dias da consulta.
 
+##### Alterando comportamento da Flag 'SPAM'
+
+O SPFBL, por padrão, ao identificar um email com má reputação irá marcar o email com a FLAG 'SPAM', para você poder em seu MTA tratá-la da forma desejada (colocar em quarentena, pasta de SPAM, análise manual, etc.).
+
+Para alterar este parâmetro, utilize o comando abaixo (via socket). Ele irá fazer a mensagem ser descartada diretamente no SPFBL.
+
+echo "CLIENT SET ACTION RED REJECT" | nc localhost 9875
+
+Substitua 'cidr' pelo bloco de IPs de seu cliente, exemplo:
+
+111.222.333.444/32
+
 ##### Bloqueio permanente de remetentes
 
 É possível bloquear remetentes permanentemente através da alteração de uma lista arbitrária onde o SPFBL realiza a denúncia automática e manda o MTA rejeitar a mensagem.
