@@ -7,7 +7,6 @@ echo -e "${D}Updater release: v0.1 ${R}"
 
 BACKUP_DIR=/opt/spfbl/backup
 AGORA=`date +%y-%m-%d-%H-%M`
---> alterar MTA=postfix 
 
 atualizaSistema(){
 
