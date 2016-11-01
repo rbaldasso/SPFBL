@@ -18,7 +18,7 @@ atualizaSistema(){
             mkdir -p "$BACKUP_DIR"
         fi
         #Baixa Arquivos
-        wget https://github.com/leonamp/SPFBL/raw/master/dist/SPFBL.jar -O /tmp/spfbl-update/SPFBL.jar
+        wget "$URLDOWNLOAD" -O /tmp/spfbl-update/SPFBL.jar
         var1=$(stat -c%s /tmp/spfbl-updateSPFBL.jar)
         var2=$(stat -c%s /opt/spfbl/SPFBL.jar)
 
@@ -43,59 +43,79 @@ atualizaSistema(){
                 echo "Can't download https://github.com/SPFBL/beta-test/raw/master/SPFBL.jar"
                 exit
             fi 
-echo "****    SPFBL  UPDATE    ****"
-echo
+        echo "****    SPFBL  UPDATE    ****"
+        echo
 
-echo "****   Current Version   ****"
-echo "VERSION" | nc 127.0.0.1 9875
+        echo "****   Current Version   ****"
+        mostraVersao
 
-echo "**** !!  Stoping MTA  !! ****"
-service "$MTA" stop
-echo "OK"
+        paraMta
 
-echo "**** SPFBL - Store cache ****"
-echo "STORE" | nc 127.0.0.1 9875
+        fazBackup
 
-echo "**** SPFBL - Backup      ****"
-echo "DUMP" | nc 127.0.0.1 9875 > "$BACKUP_DIR"/spfbl-dump-"$AGORA".txt
-echo "OK"
+        echo "**** SPFBL - Shutdown    ****"
+        echo "SHUTDOWN" | nc 127.0.0.1 9875
 
-echo "**** SPFBL - Shutdown    ****"
-echo "SHUTDOWN" | nc 127.0.0.1 9875
+        echo "**** SPFBL - Copy new v. ****"
+        mv /opt/spfbl/SPFBL.jar $BACKUP_DIR/SPFBL.jar-"$AGORA"
+        mv /tmp/spfbl-update/SPFBL.jar /opt/spfbl/SPFBL.jar
+        echo "OK"
 
-echo "**** SPFBL - Copy new v. ****"
-mv /opt/spfbl/SPFBL.jar $BACKUP_DIR/SPFBL.jar-"$AGORA"
-mv /tmp/spfbl-update/SPFBL.jar /opt/spfbl/SPFBL.jar
-echo "OK"
+        echo "**** SPFBL - Starting    ****"
+        /etc/init.d/spfbl start
+        sleep 30
 
-echo "**** SPFBL - Starting    ****"
-cd /opt/spfbl/
-java -jar SPFBL.jar &
-cd /root/
-sleep 30
+        if [ "$(ps auxwf | grep java | grep SPFBL | grep -v grep | wc -l)" -eq "1" ]; then
+            echo "OK - SERVICE ONLINE"
+        else
+            echo "FALHA - Verifique os logs e se necessario reverta do backup"
+        fi
 
-if [ "$(ps auxwf | grep java | grep SPFBL | grep -v grep | wc -l)" -eq "1" ]; then
-    echo "OK"
-else
-    exit -1
-fi
+        iniciaMta
+         
+        echo "**** SPFBL - New Version ****"
+        mostraVersao
 
-rm -r /tmp/spfbl-update
-
-echo "**** !  Starting MTA   ! ****"
-service "$MTA" start
-echo "OK"
- 
-echo "**** SPFBL - New Version ****"
-echo "VERSION" | nc 127.0.0.1 9875
-
-echo "****  F I N I S H E D !  ****"
-echo "Done."
+        echo "****  F I N I S H E D !  ****"
+        echo "Done."
 
         fi
 
 } 
 
+paraMta(){
+
+    echo "**** !!  Stoping MTA  !! ****"
+    service "$MTA" stop
+    echo "OK"
+
+}
+
+fazBackup(){
+
+    echo "**** SPFBL - Store cache ****"
+    echo "STORE" | nc 127.0.0.1 9875
+
+    echo "**** SPFBL - Backup      ****"
+    echo "DUMP" | nc 127.0.01 9875 > "$BACKUP_DIR"/spfbl-dump-"$AGORA".txt
+    tar -zcf "$BACKUP_DIR"/spfbl-backup-"$AGORA".tar /opt/spfbl
+    echo "BACKUP OK"
+
+}
+
+iniciaMta(){
+
+    echo "**** !  Starting MTA   ! ****"
+    service "$MTA" start
+    echo "OK"
+
+}
+
+mostraVersao(){
+
+    echo "VERSION" | nc 127.0.0.1 9875
+
+}
 
 else
     echo "Os arquivos são iguais"
@@ -104,11 +124,41 @@ rm -r /tmp/spfbl-update
 
 fi
 
+# Opcoes de controle (menu)
+while [[ $# -gt 1 ]]
+do
+key="$1"
 
-if [ "$1" != "--update" ] && [ "$2" != "--exim" ] OR [ "$2" != "--postfix" ]; then
+case $key in
+    -m|--mta)
+    MTA="$2"
+    shift # past argument
+    ;;
+    -u|--update)
+    BRANCH="$2"
+    shift # past argument
+    ;;
+esac
+shift # past argument or value
+done
+
+if [ "$BRANCH" == "beta" ]; then
+    $URLDOWNLOAD="https://github.com/SPFBL/beta-test/raw/master/SPFBL.jar"
+else 
+    $URLDOWNLOAD="https://github.com/leonamp/SPFBL/blob/master/dist/SPFBL.jar"
+fi
+############
+
+if [ "$1" != "-u" ] && [ "$2" != "--m" ]; then
     echo -e "${V}\nScript de atualização do SPFBL${R}"
+    echo -e "--"    
     echo -e "${D}\nParametros aceitos: ${R}"
-    echo -e "${D}   --update   /  efetua a atualização${R}" 
-    echo -e "${D}   --exim     /  para o exim durante atualizacao${R}" 
-    echo -e "${D}   --postfix  /  para o postfix durante atualizacao${R}" 
+    echo -e "${D}   -u   /  args. aceitos: stable e beta efetua a atualização${R}" 
+    echo -e "${D}   Exemplo: -u stable  (opcao default)${R}" 
+    echo -e "${D}   Exemplo: -u beta${R}"
+    echo -e "--"
+    echo -e "${D}   --m     /  args. aceitos: nenhum , exim e postix${R}" 
+    echo -e "${D}   Exemplo: -m nenhum  (opcao default)${R}" 
+    echo -e "${D}   Exemplo: -m exim${R}" 
+    echo -e "${D}   Exemplo: -m postfix${R}" 
 fi 
