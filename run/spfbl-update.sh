@@ -1,75 +1,48 @@
 #!/bin/sh
 
+V='\033[01;31m'
+D='\033[01;32m'
+R='\033[0m'
+echo -e "${D}Updater release: v0.1 ${R}"
+
 BACKUP_DIR=/opt/spfbl/backup
 AGORA=`date +%y-%m-%d-%H-%M`
-MTA=postfix
+--> alterar MTA=postfix 
 
-rm -r /tmp/spfbl-update
-mkdir -p /tmp/spfbl-update
-mkdir -p "$BACKUP_DIR"
+atualizaSistema(){
 
-wget https://github.com/leonamp/SPFBL/raw/master/dist/SPFBL.jar -O /tmp/spfbl-update/SPFBL.jar
+        rm -f /tmp/spfbl-update/*
+        rmdir /tmp/spfbl-update/
+        mkdir -p /tmp/spfbl-update
+        if [ ! -d "$BACKUP_DIR" ]; then
+            mkdir -p "$BACKUP_DIR"
+        fi
+        #Baixa Arquivos
+        wget https://github.com/leonamp/SPFBL/raw/master/dist/SPFBL.jar -O /tmp/spfbl-update/SPFBL.jar
+        var1=$(stat -c%s /tmp/spfbl-updateSPFBL.jar)
+        var2=$(stat -c%s /opt/spfbl/SPFBL.jar)
 
-var1=$(stat -c%s /tmp/spfbl-updateSPFBL.jar)
-
-var2=$(stat -c%s /opt/spfbl/SPFBL.jar)
-
-if [ "$var1" != "$var2" ]; then
-
-echo "Os arquivos são diferentes"
-echo "O SPFBL será atualizado"
-echo "Para cancelar, tecle CTRL+C AGORA!"
-echo
-pause 10
-echo "Continuando atualização..."
-echo
-echo "Verificando LIBs necessárias..."
-echo
-
-if [ ! -f "/opt/spfbl/lib/commons-codec-1.10.jar" ]; then
-wget https://github.com/leonamp/SPFBL/raw/master/lib/commons-codec-1.10.jar -O /opt/spfbl/lib/commons-codec-1.10.jar
-fi
-
-if [ ! -f "/opt/spfbl/lib/commons-lang3-3.3.2.jar" ]; then
-wget https://github.com/leonamp/SPFBL/raw/master/lib/commons-lang3-3.3.2.jar -O /opt/spfbl/lib/commons-lang3-3.3.2.jar
-fi
-
-if [ ! -f "/opt/spfbl/lib/commons-net-3.3.jar" ]; then
-wget https://github.com/leonamp/SPFBL/raw/master/lib/commons-net-3.3.jar -O /opt/spfbl/lib/commons-net-3.3.jar
-fi
-
-if [ ! -f "/opt/spfbl/lib/commons-validator-1.4.1.jar" ]; then
-wget https://github.com/leonamp/SPFBL/raw/master/lib/commons-validator-1.4.1.jar -O /opt/spfbl/lib/commons-validator-1.4.1.jar
-fi
-
-if [ ! -f "/opt/spfbl/lib/dnsjava-2.1.7.jar" ]; then
-wget https://github.com/leonamp/SPFBL/raw/master/lib/dnsjava-2.1.7.jar -O /opt/spfbl/lib/dnsjava-2.1.7.jar
-fi
-
-if [ ! -f "/opt/spfbl/lib/javax.mail.jar" ]; then
-wget https://github.com/leonamp/SPFBL/raw/master/lib/javax.mail.jar -O /opt/spfbl/lib/javax.mail.jar
-fi
-
-if [ ! -f "/opt/spfbl/lib/junique-1.0.4.jar" ]; then
-wget https://github.com/leonamp/SPFBL/raw/master/lib/junique-1.0.4.jar -O /opt/spfbl/lib/junique-1.0.4.jar
-fi
-
-if [ ! -f "/opt/spfbl/lib/recaptcha4j-0.0.7.jar" ]; then
-wget https://github.com/leonamp/SPFBL/raw/master/lib/recaptcha4j-0.0.7.jar -O /opt/spfbl/lib/recaptcha4j-0.0.7.jar
-fi
-
-if [ ! -f "/opt/spfbl/lib/zxing-2.1.jar" ]; then
-wget https://github.com/leonamp/SPFBL/raw/master/lib/zxing-2.1.jar -O /opt/spfbl/lib/zxing-2.1.jar
-fi
-
-echo "Fazendo download do SPFBL.jar"
-echo
-
-if [ ! -f "/tmp/spfbl-update/SPFBL.jar" ]; then
-    echo "Can't download https://github.com/SPFBL/beta-test/raw/master/SPFBL.jar"
-fi
-
-
+        if [ "$var1" != "$var2" ]; then
+        #Necessario atualizar
+        echo "Os arquivos são diferentes"
+        echo "O SPFBL será atualizado"
+        echo "Para cancelar, tecle CTRL+C AGORA!"
+        echo
+        pause 10
+        echo "Continuando atualização..."
+        echo
+        echo "Verificando LIBs necessárias..."
+        # baixar pasta de libs, pegar lista de nomes, comparar com a pasta atual 
+        #
+        #
+        #
+        #Atualiza SPFBL.jar
+        echo "Movendo o arquivo SPFBL.jar"
+        echo
+            if [ ! -f "/tmp/spfbl-update/SPFBL.jar" ]; then
+                echo "Can't download https://github.com/SPFBL/beta-test/raw/master/SPFBL.jar"
+                exit
+            fi 
 echo "****    SPFBL  UPDATE    ****"
 echo
 
@@ -119,9 +92,23 @@ echo "VERSION" | nc 127.0.0.1 9875
 echo "****  F I N I S H E D !  ****"
 echo "Done."
 
+        fi
+
+} 
+
+
 else
     echo "Os arquivos são iguais"
 
 rm -r /tmp/spfbl-update
 
 fi
+
+
+if [ "$1" != "--update" ] && [ "$2" != "--exim" ] OR [ "$2" != "--postfix" ]; then
+    echo -e "${V}\nScript de atualização do SPFBL${R}"
+    echo -e "${D}\nParametros aceitos: ${R}"
+    echo -e "${D}   --update   /  efetua a atualização${R}" 
+    echo -e "${D}   --exim     /  para o exim durante atualizacao${R}" 
+    echo -e "${D}   --postfix  /  para o postfix durante atualizacao${R}" 
+fi 
