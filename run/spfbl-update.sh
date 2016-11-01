@@ -14,8 +14,6 @@ if [ -f /etc/lsb-release ]; then
     . /etc/init.d/functions
 fi 
 
-########## ARRUMAR O SLEEP APOS TESTES E TAMBEM O BACKUP
-
 atualizaSistema(){
 
         echo -e "${V}\nIniciando procedimentos${R}"
@@ -35,7 +33,7 @@ atualizaSistema(){
         echo -e "${D}Os arquivos são diferentes, o SPFBL será atualizado${R}"
         echo -e "${V}!!!!!!! Para cancelar, tecle CTRL+C AGORA! !!!!!!!!${R}"
         echo
-        #DESLIGADO PARA TESTES sleep 10
+        sleep 10
         echo -e "${D}Continuando atualização...${R}"
         fazBackup
         echo
@@ -111,7 +109,7 @@ iniciaMta(){
         service "$MTA" start
         echo "OK"
     fi
-    
+
 }
 
 paraMta(){
@@ -130,9 +128,9 @@ fazBackup(){
     echo "STORE" | nc 127.0.0.1 9875
 
     echo -e "${V} **** SPFBL - Backup      ****${R}"
-    #echo "DUMP" | nc 127.0.01 9875 > "$BACKUP_DIR"/spfbl-dump-"$AGORA".txt
-    #tar -zcf "$BACKUP_DIR"/spfbl-backup-"$AGORA".tar /opt/spfbl &> /dev/null
-    #echo "BACKUP OK"
+    echo "DUMP" | nc 127.0.01 9875 > "$BACKUP_DIR"/spfbl-dump-"$AGORA".txt
+    tar -zcf "$BACKUP_DIR"/spfbl-backup-"$AGORA".tar /opt/spfbl &> /dev/null
+    echo "BACKUP OK"
 
 }
 
