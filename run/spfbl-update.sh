@@ -21,7 +21,7 @@ atualizaSistema(){
         var1=$(stat -c%s /tmp/spfbl-update/SPFBL.jar)
         var2=$(stat -c%s /opt/spfbl/SPFBL.jar)
 
-        if [ "$var1" != "$var2" ]; then
+    if [ "$var1" != "$var2" ]; then
         #Necessario atualizar
         echo "Os arquivos são diferentes"
         echo "O SPFBL será atualizado"
@@ -89,6 +89,12 @@ atualizaSistema(){
 
         echo "****  F I N I S H E D !  ****"
         echo "Done."
+        
+    else
+        
+        echo "Os arquivos são iguais"
+
+    fi
 
 } 
 
@@ -126,13 +132,6 @@ mostraVersao(){
 
 }
 
-else
-    echo "Os arquivos são iguais"
-
-rm -r /tmp/spfbl-update
-
-fi
-
 # Opcoes de controle (menu)
 while [[ $# -gt 1 ]]
 do
@@ -156,6 +155,9 @@ if [ "$BRANCH" == "beta" ]; then
 else 
     $URLDOWNLOAD="https://github.com/leonamp/SPFBL/blob/master/dist/SPFBL.jar"
 fi
+
+atualizaSistema 
+
 ############
 
 if [ "$1" != "-u" ] && [ "$2" != "--m" ]; then
