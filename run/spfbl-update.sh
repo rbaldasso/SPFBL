@@ -90,8 +90,6 @@ atualizaSistema(){
         echo "****  F I N I S H E D !  ****"
         echo "Done."
 
-        fi
-
 } 
 
 paraMta(){
