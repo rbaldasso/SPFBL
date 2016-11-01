@@ -19,7 +19,7 @@ atualizaSistema(){
         fi
         #Baixa Arquivos
         wget "$URLDOWNLOAD" -O /tmp/spfbl-update/SPFBL.jar
-        var1=$(stat -c%s /tmp/spfbl-updateSPFBL.jar)
+        var1=$(stat -c%s /tmp/spfbl-update/SPFBL.jar)
         var2=$(stat -c%s /opt/spfbl/SPFBL.jar)
 
         if [ "$var1" != "$var2" ]; then
@@ -30,12 +30,26 @@ atualizaSistema(){
         echo
         pause 10
         echo "Continuando atualização..."
+        fazBackup
         echo
         echo "Verificando LIBs necessárias..."
-        # baixar pasta de libs, pegar lista de nomes, comparar com a pasta atual 
-        #
-        #
-        #
+        cd /tmp/spfbl-update/
+        wget https://github.com/leonamp/SPFBL/archive/master.zip
+        unzip master.zip
+        cd /tmp/spfbl-update/SPFBL-master/lib
+        find . -name "*jar" -type f -exec ls -l {} \; | cut -d'/' -f 2 >> /tmp/spfbl-update/listadelibsGITHUB.txt
+        cd /opt/spfbl/lib
+        find . -name "*jar" -type f -exec ls -l {} \; | cut -d'/' -f 2 >> /tmp/spfbl-update/listadelibsLOCAL.txt
+            if diff -q /tmp/spfbl-update/listadelibsGITHUB.txt /tmp/spfbl-update/listadelibsLOCAL.txt
+                then
+                echo "LIBs iguais, nao necessario altera-las"
+            else
+                echo "LIBs diferentes, necessario update"
+            fi
+        echo -e "${D} Atualizando Libs ${R}" 
+        rm -f /opt/spfbl/lib/*
+        cp /tmp/spfbl-update/SPFBL-master/lib/* /opt/spfbl/lib/
+
         #Atualiza SPFBL.jar
         echo "Movendo o arquivo SPFBL.jar"
         echo
@@ -50,8 +64,6 @@ atualizaSistema(){
         mostraVersao
 
         paraMta
-
-        fazBackup
 
         echo "**** SPFBL - Shutdown    ****"
         echo "SHUTDOWN" | nc 127.0.0.1 9875
