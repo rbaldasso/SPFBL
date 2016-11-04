@@ -3,7 +3,7 @@
 V='\033[01;31m'
 D='\033[01;32m'
 R='\033[0m'
-echo -e "${D}Updater release: v0.1 ${R}"
+echo -e "${D}SPFBL Updater v0.1 release 01/11/2016 ${R}"
 
 BACKUP_DIR=/opt/spfbl/backup
 AGORA=`date +%y-%m-%d-%H-%M`
@@ -18,8 +18,8 @@ atualizaSistema(){
 
         echo -e "${V}\nIniciando procedimentos${R}"
         echo -e "${D}\n${R}"
-        rm -Rf /tmp/spfbl-update/*
         mkdir -p /tmp/spfbl-update
+        rm -Rf /tmp/spfbl-update/*
         if [ ! -d "$BACKUP_DIR" ]; then
             mkdir -p "$BACKUP_DIR"
         fi
@@ -143,20 +143,17 @@ mostraVersao(){
 ############
 
 if [ "$1" != "-u" ] && [ "$2" != "--m" ]; then
-    echo -e "${V}\nScript de atualização do SPFBL${R}"
-    echo -e "${D}\nParametros aceitos: ${R}"
-    echo -e "${D}\n   -u   /  args. aceitos: stable e beta -> efetua a atualização${R}" 
-    echo -e "${D}   Exemplo: -u stable  (opcao recomendada)${R}" 
-    echo -e "${D}   Exemplo: -u beta${R}"
-    echo -e "${D}\n   --------------------------------${R}"
-    echo -e "${D}\n   -m     /  args. aceitos: nenhum , exim e postix${R}" 
-    echo -e "${D}   Exemplo: -m nenhum${R}" 
-    echo -e "${D}   Exemplo: -m exim${R}" 
-    echo -e "${D}   Exemplo: -m postfix${R}" 
-
+    echo "${V}\nScript de atualização do SPFBL${R}"
+    echo "${D}\nParametros necessarios: ${R}"
+    echo "${D}\n   -u  stable ou beta ${R}" 
+    echo "${D}   stable: versao estavel (opcao recomendada) ${R}" 
+    echo "${D}   beta: versao de teste ${R}"
+    echo "${D}\n   -m  nenhum ou exim ou postix ou o nome do servico MTA${R}" 
+    echo "${D}\n Exemplo: ${R}"
+    echo "${D}\n ./spfbl-update.sh -u stable -m nenhum ${R}"
+    echo
     exit
-
-fi 
+fi
 
 # Opcoes de controle (menu)
 while [[ $# -gt 1 ]]
