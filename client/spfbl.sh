@@ -2056,7 +2056,7 @@ case $1 in
 			head
 			printf "Faltando parametro(s).\nSintaxe: $0 load path\n"
 		else
-			file=$1
+			file=$2
 			if [ -f $file ]; then
 				for line in `cat $file`; do
 					echo -n "Adding $line ... "
@@ -2126,6 +2126,7 @@ case $1 in
 		printf "    $0 analise <ip> or { show | dump | drop }\n"
 		printf "    $0 dump\n"
 		printf "    $0 load path\n"
+		printf "    $0 backup { retain days | null } \n"
 		printf "\n"
 	;;
 esac
